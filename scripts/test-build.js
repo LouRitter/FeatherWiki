@@ -7,45 +7,59 @@
  *
  * You should have received a copy of the GNU Affero General Public License along with Feather Wiki. If not, see https://www.gnu.org/licenses/.
  */
-import fs from 'fs';
-import path from 'path';
-import http from 'http';
+import fs from "fs";
+import path from "path";
+import http from "http";
 
-const servePath = path.resolve(process.cwd(), 'builds', `FeatherWiki.html`);
+const servePath = path.resolve(
+  process.cwd(),
+  "builds",
+  "v1.8.x",
+  `FeatherWiki_Meadowlark.html`
+);
 
 // Create an instance of the http server to handle HTTP requests
 let app = http.createServer((req, res) => {
-    // Set a response type of plain text for the response
-    res.writeHead(200, {
-        'Content-Type': 'text/html',
-        'dav': 1,
+  // Set a response type of plain text for the response
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    dav: 1,
+  });
+
+  if (req.method === "PUT") {
+    let data = "";
+    req.on("data", (chunk) => {
+      data += chunk;
     });
+    req.on("end", () => {
+      const savePath = path.resolve(process.cwd(), "develop", "put-save.html");
+      fs.writeFile(savePath, data, (err) => {
+        if (err) throw err;
+        const outputKb =
+          (Uint8Array.from(Buffer.from(data)).byteLength * 0.000977).toFixed(
+            3
+          ) + " kb";
+        console.info(savePath, outputKb);
+      });
+      res.end();
+    });
+  }
 
-    if (req.method === 'PUT') {
-        let data = '';
-        req.on('data', chunk => {
-            data += chunk;
-        });
-        req.on('end', () => {
-            const savePath = path.resolve(process.cwd(), 'develop', 'put-save.html');
-            fs.writeFile(savePath, data, (err) => {
-                if (err) throw err;
-                const outputKb = (Uint8Array.from(Buffer.from(data)).byteLength * 0.000977).toFixed(3) + ' kb';
-                console.info(savePath, outputKb);
-              });
-            res.end();
-        });
-    }
-
-    const url = req.url?.substring(1);
-    if (url && url.match(/\.\w+$/) && fs.existsSync(path.resolve(process.cwd(), url))) {
-        res.end(fs.readFileSync(path.resolve(process.cwd(), url)));
-    } else {
-        // Send back a response and end the connection
-        res.end(fs.readFileSync(servePath));
-    }
+  const url = req.url?.substring(1);
+  if (
+    url &&
+    url.match(/\.\w+$/) &&
+    fs.existsSync(path.resolve(process.cwd(), url))
+  ) {
+    res.end(fs.readFileSync(path.resolve(process.cwd(), url)));
+  } else {
+    // Send back a response and end the connection
+    res.end(fs.readFileSync(servePath));
+  }
 });
 
 // Start the server on port 3000
-app.listen(3000, 'localhost');
-console.log('Node server running at http://localhost:3000 and serving ' + servePath);
+app.listen(3000, "localhost");
+console.log(
+  "Node server running at http://localhost:3000 and serving " + servePath
+);
