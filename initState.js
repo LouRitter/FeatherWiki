@@ -7,16 +7,16 @@
  *
  * You should have received a copy of the GNU Affero General Public License along with Feather Wiki. If not, see https://www.gnu.org/licenses/.
  */
-import { pagesView } from './views/pages';
-import { settingsView } from './views/settings';
-import { taggedView } from './views/tagged';
-import { pageView } from './views/page';
-import { missingView } from './views/missing';
+import { pagesView } from "./views/pages";
+import { settingsView } from "./views/settings";
+import { taggedView } from "./views/tagged";
+import { pageView } from "./views/page";
+import { missingView } from "./views/missing";
 
-export const initState = state => {
-  state.root = location.pathname || '/'; // path to file
+export const initState = (state) => {
+  state.root = location.pathname || "/"; // path to file
   state.sb = false; // show sidebar
-  state.sbTab = '{{translate:pagesTab}}';
+  state.sbTab = "{{translate:pagesTab}}";
   state.sbx = new Set(); // expanded sidebar menu items
   state.recent = [];
   state.edit = false;
@@ -25,22 +25,26 @@ export const initState = state => {
   state.src = false; // Show HTML in editor
   state.notis = {}; // Notifications
   state.canPut = false; // Show "Save Wiki to Server" button
+  state.modal = { show: false, content: "", title: "" }; // Modal state
 
   state.events = {
     ...state.events,
-    HANDLE_404: '404',
-    CREATE_PAGE: 'cp',
-    START_EDIT: 'se',
-    CANCEL_EDIT: 'ce',
-    UPDATE_PAGE: 'up',
-    DELETE_PAGE: 'dp',
-    COLLECT_TAGS: 'ct',
-    CHECK_CHANGED: 'cc',
-    SAVE_WIKI: 'sw',
-    NOTIFY: 'n',
-    REMOVE_NOTI: 'rn',
-    PUT_SAVE_WIKI: 'psw',
-    DETECT_PUT_SUPPORT: 'dps',
+    HANDLE_404: "404",
+    CREATE_PAGE: "cp",
+    START_EDIT: "se",
+    CANCEL_EDIT: "ce",
+    UPDATE_PAGE: "up",
+    DELETE_PAGE: "dp",
+    COLLECT_TAGS: "ct",
+    CHECK_CHANGED: "cc",
+    SAVE_WIKI: "sw",
+    NOTIFY: "n",
+    REMOVE_NOTI: "rn",
+    PUT_SAVE_WIKI: "psw",
+    DETECT_PUT_SUPPORT: "dps",
+    SUMMARIZE_WIKI: "swi",
+    SHOW_MODAL: "sm",
+    HIDE_MODAL: "hm",
   };
 
   state.views = {
@@ -48,21 +52,23 @@ export const initState = state => {
     s: settingsView,
     t: taggedView,
     p: pageView,
-    m: missingView
+    m: missingView,
   };
 
-  state.c = document.querySelector('style#c')?.innerHTML ?? '';
-  state.j = FW.parseJs(document.querySelector('script#j')?.innerHTML ?? '');
+  state.c = document.querySelector("style#c")?.innerHTML ?? "";
+  state.j = FW.parseJs(document.querySelector("script#j")?.innerHTML ?? "");
   try {
-    state.p = FW.json.decompress(JSON.parse(document.querySelector('script#p').innerHTML));
+    state.p = FW.json.decompress(
+      JSON.parse(document.querySelector("script#p").innerHTML)
+    );
   } catch (e) {
-    state.p = {name:'{{translate:newWiki}}',desc:'',pages:[],img:{}};
+    state.p = { name: "{{translate:newWiki}}", desc: "", pages: [], img: {} };
   }
   state.pg = FW.getPage();
-  
+
   // determine last-used editor
-  const lastModified = state.p.pages.find(p => p.id === state.recent[0]?.p);
-  state.useMd = lastModified?.editor === 'md';
+  const lastModified = state.p.pages.find((p) => p.id === state.recent[0]?.p);
+  state.useMd = lastModified?.editor === "md";
 
   state.t = []; // all used tags
   state.prev = FW.hash.object(state.p); // Hash of state at last save
@@ -70,4 +76,4 @@ export const initState = state => {
   state.changed = false; // Changed since last save?
 
   return state;
-}
+};

@@ -2,3 +2,4 @@ node_modules/
 develop/
 builds/
 .DS_Store
+.env

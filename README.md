@@ -1,8 +1,54 @@
 # Feather Wiki
 
-A 58.174 kilobyte [quine](https://en.wikipedia.org/wiki/Quine_(computing)) for creating simple, self-contained wikis. The idea is that it's like [TiddlyWiki](https://tiddlywiki.com) but as small as possible.
+A 165.302 kilobyte [quine](<https://en.wikipedia.org/wiki/Quine_(computing)>) for creating simple, self-contained wikis. The idea is that it's like [TiddlyWiki](https://tiddlywiki.com) but as small as possible.
 
 Check out the [Documentation](https://feather.wiki) to see it in action and learn how to use it!
+
+## AI Summarization Feature
+
+Feather Wiki now includes an AI-powered summarization feature that uses OpenAI's GPT-4o model to generate concise summaries of wiki pages.
+
+### Setup
+
+To enable AI summarization, you need to create a `.env` file with your OpenAI API key:
+
+1. **Create a `.env` file** in the project root:
+
+   ```bash
+   # .env
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+2. **Get your OpenAI API key**:
+
+   - Visit [OpenAI API Keys](https://platform.openai.com/api-keys)
+   - Sign in or create an account
+   - Click "Create new secret key"
+   - Copy the generated API key
+
+3. **Update the `.env` file** with your actual API key:
+
+   ```bash
+   # .env
+   OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+
+4. **Build the application**:
+   ```bash
+   npm run build
+   ```
+
+The API key will be securely embedded in the build and used by the AI summarization feature.
+
+**Security Note**: Never commit your `.env` file to version control. It's already included in `.gitignore` to prevent accidental commits.
+
+### Usage
+
+1. Navigate to any wiki page
+2. Click the "Summarize with AI" button
+3. A modal will appear with an AI-generated summary of the page content
+
+**Note**: The AI summarization feature requires an OpenAI API key and will only work if properly configured during the build process.
 
 ## Browser Compatibility
 
@@ -60,7 +106,8 @@ To get your computer set up to develop:
 1. Run `npm install`
 1. Run `npm start` and visit http://localhost:3000 in your browser
 1. Start making changes to the JavaScript to update your build—you will need to refresh your browser to see your changes
-  - Note: Changing the CSS doesn't automatically update the build, so you'll need to modify some JS or restart the script to see those changes
+
+- Note: Changing the CSS doesn't automatically update the build, so you'll need to modify some JS or restart the script to see those changes
 
 When you're ready to build, simply use the `npm run build` to build Feather Wiki.
 

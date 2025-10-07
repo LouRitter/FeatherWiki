@@ -112,5 +112,11 @@
   "wikiHasChanged": "Wiki has changed!",
   "wikiLoaded": "Wiki Loaded",
   "wikiSettings": "Wiki Settings",
-  "wikiTitle": "Wiki Title"
+  "wikiTitle": "Wiki Title",
+  "summarizeWithAI": "Summarize with AI",
+  "noPageToSummarize": "No page available to summarize",
+  "generatingSummary": "Generating summary...",
+  "summaryGenerated": "Summary",
+  "summaryFailed": "Summary failed",
+  "pleaseWait": "Please wait"
 }

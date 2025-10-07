@@ -16,11 +16,14 @@
   },
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.2.3",
     "nanobus": "^4.5.0",
     "nanohref": "^3.1.0",
     "nanohtml": "^1.10.0",
     "nanomorph": "^5.4.3",
-    "nanoraf": "^3.1.0"
+    "nanoraf": "^3.1.0",
+    "openai": "^6.2.0",
+    "process": "^0.11.10"
   },
   "devDependencies": {
     "esbuild": "^0.14.54",

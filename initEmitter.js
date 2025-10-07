@@ -7,22 +7,49 @@
  *
  * You should have received a copy of the GNU Affero General Public License along with Feather Wiki. If not, see https://www.gnu.org/licenses/.
  */
-import { handleTab } from './helpers/handleTab';
+import { handleTab } from "./helpers/handleTab";
+import { summarizeContent } from "./helpers/aiSummarize";
 
 export const initEmitter = (state, emitter) => {
   const { root, views } = state;
   const {
-    ONLOAD, TITLE, RENDER, GO, HANDLE_404,
-    CREATE_PAGE, START_EDIT, CANCEL_EDIT, UPDATE_PAGE, DELETE_PAGE,
-    COLLECT_TAGS, CHECK_CHANGED, SAVE_WIKI, PUT_SAVE_WIKI, DETECT_PUT_SUPPORT,
-    NOTIFY, REMOVE_NOTI,
+    ONLOAD,
+    TITLE,
+    RENDER,
+    GO,
+    HANDLE_404,
+    CREATE_PAGE,
+    START_EDIT,
+    CANCEL_EDIT,
+    UPDATE_PAGE,
+    DELETE_PAGE,
+    COLLECT_TAGS,
+    CHECK_CHANGED,
+    SAVE_WIKI,
+    PUT_SAVE_WIKI,
+    DETECT_PUT_SUPPORT,
+    NOTIFY,
+    REMOVE_NOTI,
+    SUMMARIZE_WIKI,
+    SHOW_MODAL,
+    HIDE_MODAL,
   } = state.events;
   const emit = (...args) => emitter.emit(...args);
-  const title = () => emit(TITLE, state.p.name + (state.pg ? ' | ' + state.pg.name : ''));
-  const tab = () => setTimeout(() => document.querySelectorAll('textarea:not(.notab)').forEach(t => t.onkeydown = handleTab), 300);
-  
-  const keepEditing = () => state.edits && !confirm('{{translate:unsavedWarning}}'); // True if editing & clicks cancel
-  const stopEdit = () => { // Shave off more bytes
+  const title = () =>
+    emit(TITLE, state.p.name + (state.pg ? " | " + state.pg.name : ""));
+  const tab = () =>
+    setTimeout(
+      () =>
+        document
+          .querySelectorAll("textarea:not(.notab)")
+          .forEach((t) => (t.onkeydown = handleTab)),
+      300
+    );
+
+  const keepEditing = () =>
+    state.edits && !confirm("{{translate:unsavedWarning}}"); // True if editing & clicks cancel
+  const stopEdit = () => {
+    // Shave off more bytes
     state.edit = false;
     state.edits = null;
   };
@@ -30,7 +57,9 @@ export const initEmitter = (state, emitter) => {
   emitter.on(ONLOAD, () => {
     emit(HANDLE_404);
     title();
-    state.recent = state.p.pages.map(p => ({ p: p.id, t: p.md ?? p.cd })).sort((a, b) => a.t > b.t ? -1 : 1)
+    state.recent = state.p.pages
+      .map((p) => ({ p: p.id, t: p.md ?? p.cd }))
+      .sort((a, b) => (a.t > b.t ? -1 : 1));
     emit(COLLECT_TAGS);
     if (state.t.length) emit(RENDER);
     else tab();
@@ -46,11 +75,18 @@ export const initEmitter = (state, emitter) => {
       const slug = FW.slug(page);
       const pg = FW.find(slug);
       if (!pg && !views[slug]) {
-        const name = page.split('_').map(w => w[0].toUpperCase() + w.substring(1)).join(' ');
+        const name = page
+          .split("_")
+          .map((w) => w[0].toUpperCase() + w.substring(1))
+          .join(" ");
         emit(CREATE_PAGE, name, false);
       }
     } else if (page?.length > 0 && !views[page]) {
-      state.pg = { e: true, name: '404', content: '<p>{{translate:pageNotFound}}</p>'};
+      state.pg = {
+        e: true,
+        name: "404",
+        content: "<p>{{translate:pageNotFound}}</p>",
+      };
       emit(RENDER);
     }
   });
@@ -80,22 +116,20 @@ export const initEmitter = (state, emitter) => {
         const code = Math.round(Math.random() * (126 - 32)) + 32;
         s.push(String.fromCharCode(code));
       }
-      return s.join('');
-    }
+      return s.join("");
+    };
     let id;
     do {
       id = genId();
-    }
-    while (p.pages.findIndex(p => p.id === id) >= 0);
+    } while (p.pages.findIndex((p) => p.id === id) >= 0);
     // Ensure unique slug
     let d = 0,
       s = FW.slug(name),
       slug;
     do {
-      slug = s + (d > 0 ? '_' + d : '');
+      slug = s + (d > 0 ? "_" + d : "");
       d++;
-    }
-    while (p.pages.some(pp => pp.slug === slug))
+    } while (p.pages.some((pp) => pp.slug === slug));
     const newPg = { id, name, slug, cd: Date.now() };
     state.showNewPageField = false;
 
@@ -103,7 +137,11 @@ export const initEmitter = (state, emitter) => {
       state.p.pages.push(newPg);
       state.recent.unshift({ p: newPg.id, t: newPg.cd });
       emit(CHECK_CHANGED);
-      emit(GO, root + '?page=' + slug, query.page !== slug ? 'replace' : 'push');
+      emit(
+        GO,
+        root + "?page=" + slug,
+        query.page !== slug ? "replace" : "push"
+      );
     } else {
       state.pg = newPg;
     }
@@ -114,15 +152,15 @@ export const initEmitter = (state, emitter) => {
     const { pg } = state;
     state.edit = true;
     const store = {
-      name: pg.name ?? '',
-      slug: pg.slug ?? '',
-      content: FW.img.fix(pg.content ?? ''),
-      tags: pg.tags ?? '',
-      parent: pg.parent ?? '',
+      name: pg.name ?? "",
+      slug: pg.slug ?? "",
+      content: FW.img.fix(pg.content ?? ""),
+      tags: pg.tags ?? "",
+      parent: pg.parent ?? "",
       hide: !!pg.hide,
     };
     // Use markdown if: the page is already using it or it's a new page and the last saved page used it
-    store.useMd = pg.editor === 'md' || (!store.content && state.useMd);
+    store.useMd = pg.editor === "md" || (!store.content && state.useMd);
     state.edits = store;
     state.src = false;
     emit(RENDER);
@@ -136,34 +174,39 @@ export const initEmitter = (state, emitter) => {
 
   emitter.on(UPDATE_PAGE, (page) => {
     const { p } = state;
-    if (p.pages.some(pg => pg.slug === page.slug && pg.id !== page.id)) {
+    if (p.pages.some((pg) => pg.slug === page.slug && pg.id !== page.id)) {
       // Translation includes `template literal ${variable}`
       return alert(`{{translate:slugExists}}`);
     }
-    const pIndex = p.pages.findIndex(pg => pg.id === page.id);
-    Object.keys(page).forEach(key => {
+    const pIndex = p.pages.findIndex((pg) => pg.id === page.id);
+    Object.keys(page).forEach((key) => {
       if (page[key].length < 1) delete page[key];
-    })
+    });
     page.md = Date.now();
     if (pIndex > -1) {
       p.pages[pIndex] = page;
     } else {
       p.pages.push(page);
     }
-    state.recent = [{ p: page.id, t: page.md }, ...state.recent.filter(p => p.p !== page.id)];
+    state.recent = [
+      { p: page.id, t: page.md },
+      ...state.recent.filter((p) => p.p !== page.id),
+    ];
     stopEdit();
-    state.useMd = page.editor === 'md';
+    state.useMd = page.editor === "md";
     emit(COLLECT_TAGS);
     state.pg = FW.getPage();
     emit(CHECK_CHANGED);
   });
 
-  emitter.on(DELETE_PAGE, id => {
-    state.p.pages = state.p.pages.map(pg => {
-      if (pg.parent === id) delete pg.parent;
-      return pg;
-    }).filter(pg => pg.id !== id);
-    state.recent = state.recent.filter(p => p.p !== id);
+  emitter.on(DELETE_PAGE, (id) => {
+    state.p.pages = state.p.pages
+      .map((pg) => {
+        if (pg.parent === id) delete pg.parent;
+        return pg;
+      })
+      .filter((pg) => pg.id !== id);
+    state.recent = state.recent.filter((p) => p.p !== id);
     stopEdit();
     emit(COLLECT_TAGS);
     delete state.pg;
@@ -172,30 +215,41 @@ export const initEmitter = (state, emitter) => {
   });
 
   emitter.on(COLLECT_TAGS, () => {
-    state.t = FW.tidy(state.p.pages.reduce((r, p) => {
-      return [...r, ...(p.tags?.split(',') ?? [])];
-    }, []));
+    state.t = FW.tidy(
+      state.p.pages.reduce((r, p) => {
+        return [...r, ...(p.tags?.split(",") ?? [])];
+      }, [])
+    );
   });
 
-  emitter.on(CHECK_CHANGED, callback => {
+  emitter.on(CHECK_CHANGED, (callback) => {
     state.now = FW.hash.object(state.p);
     state.changed = state.prev !== state.now;
     emit(RENDER, callback);
   });
 
-  emitter.on(NOTIFY, (text, time = 5000, css = 'background:#ddd; color:#000') => {
-    const i = Date.now();
-    const rm = () => emit(REMOVE_NOTI, i);
-    const n = html`<div class=noti style="${css}" id="${i}" onclick=${() => rm()} title="{{translate: clickToClose}}">
-      <span role=alert>${text}</span><span class=fr>×</span>
-    </div>`;
-    state.notis[i] = n;
-    if (time > 0) setTimeout(rm, time);
+  emitter.on(
+    NOTIFY,
+    (text, time = 5000, css = "background:#ddd; color:#000") => {
+      const i = Date.now();
+      const rm = () => emit(REMOVE_NOTI, i);
+      const n = html`<div
+        class="noti"
+        style="${css}"
+        id="${i}"
+        onclick=${() => rm()}
+        title="{{translate: clickToClose}}"
+      >
+        <span role="alert">${text}</span><span class="fr">×</span>
+      </div>`;
+      state.notis[i] = n;
+      if (time > 0) setTimeout(rm, time);
 
-    document.querySelector('.notis').appendChild(n);
-  });
+      document.querySelector(".notis").appendChild(n);
+    }
+  );
 
-  emitter.on(REMOVE_NOTI, i => {
+  emitter.on(REMOVE_NOTI, (i) => {
     const e = state.notis[i];
     e?.parentNode.removeChild(e);
     delete state.notis[i];
@@ -204,10 +258,15 @@ export const initEmitter = (state, emitter) => {
   emitter.on(SAVE_WIKI, () => {
     const output = FW.gen(state);
     const { p } = state;
-    const el = document.createElement('a');
-    el.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(output));
-    const filename = /\/$/.test(root) ? 'index.html' : decodeURI(root.substring(root.lastIndexOf('/') + 1));
-    el.setAttribute('download', filename);
+    const el = document.createElement("a");
+    el.setAttribute(
+      "href",
+      "data:text/html;charset=utf-8," + encodeURIComponent(output)
+    );
+    const filename = /\/$/.test(root)
+      ? "index.html"
+      : decodeURI(root.substring(root.lastIndexOf("/") + 1));
+    el.setAttribute("download", filename);
     document.body.appendChild(el);
     el.click();
     document.body.removeChild(el);
@@ -222,19 +281,29 @@ export const initEmitter = (state, emitter) => {
   emitter.on(PUT_SAVE_WIKI, () => {
     const output = FW.gen(state);
     const { p } = state;
-    fetch(root, { method: 'PUT', body: output })
-      .then(resp => resp.text()
-        .then(text => ({ ok: resp.ok, status: resp.status, text: text }))
+    fetch(root, { method: "PUT", body: output })
+      .then((resp) =>
+        resp
+          .text()
+          .then((text) => ({ ok: resp.ok, status: resp.status, text: text }))
       )
-      .then(result => {
-        if (!result.ok) throw result.text ? result.text : `{{translate:status}} ${result.status}.`
-        emit(NOTIFY, '{{translate:saved}}')
+      .then((result) => {
+        if (!result.ok)
+          throw result.text
+            ? result.text
+            : `{{translate:status}} ${result.status}.`;
+        emit(NOTIFY, "{{translate:saved}}");
 
         state.prev = FW.hash.object(p);
         emit(CHECK_CHANGED);
       })
-      .catch(err => {
-        emit(NOTIFY, `{{translate:saveFailed}} ${err}`, 9999, 'background:#e88');
+      .catch((err) => {
+        emit(
+          NOTIFY,
+          `{{translate:saveFailed}} ${err}`,
+          9999,
+          "background:#e88"
+        );
       });
   });
 
@@ -243,16 +312,67 @@ export const initEmitter = (state, emitter) => {
     // * This only needs to run once at startup
     // * There's no need to turn it off again once it's set
     // * If any 'dav' header is present then a put save could work
-    if (!location.protocol.startsWith('http') || state.canPut) return;
-    fetch(root, { method: 'OPTIONS' })
-      .then(resp => {
-        if (resp.ok && resp.headers.get('dav')) {
+    if (!location.protocol.startsWith("http") || state.canPut) return;
+    fetch(root, { method: "OPTIONS" })
+      .then((resp) => {
+        if (resp.ok && resp.headers.get("dav")) {
           state.canPut = true;
           emit(RENDER);
         }
       })
-      .catch(err => {})
+      .catch((err) => {});
+  });
+
+  emitter.on(SUMMARIZE_WIKI, () => {
+    const { p, pg } = state;
+    if (!pg) {
+      emit(NOTIFY, "{{translate:noPageToSummarize}}", 5000, "background:#e88");
+      return;
+    }
+
+    // Show loading modal
+    emit(
+      SHOW_MODAL,
+      "{{translate:generatingSummary}}",
+      "{{translate:pleaseWait}}..."
+    );
+
+    // Prepare the content for summarization
+    const pageContent = pg.content || "";
+    const pageTitle = pg.name || "Page";
+    const pageDescription = `Title: ${pageTitle}\nContent: ${pageContent}`;
+
+    // Use the AI summarization helper
+    const summarizeWithAI = async () => {
+      try {
+        const summary = await summarizeContent(pageDescription, 300); // Increased for modal display
+
+        // Show summary in modal
+        emit(
+          SHOW_MODAL,
+          `{{translate:summaryGenerated}} - ${pageTitle}`,
+          summary
+        );
+      } catch (error) {
+        console.error("Summarization error:", error);
+
+        // Show error in modal
+        emit(SHOW_MODAL, "{{translate:summaryFailed}}", error.message);
+      }
+    };
+
+    summarizeWithAI();
+  });
+
+  emitter.on(SHOW_MODAL, (title, content) => {
+    state.modal = { show: true, title, content };
+    emit(RENDER);
+  });
+
+  emitter.on(HIDE_MODAL, () => {
+    state.modal = { show: false, content: "", title: "" };
+    emit(RENDER);
   });
 
   return emitter;
-}
+};

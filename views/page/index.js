@@ -7,8 +7,8 @@
  *
  * You should have received a copy of the GNU Affero General Public License along with Feather Wiki. If not, see https://www.gnu.org/licenses/.
  */
-import { pageDisplay } from './display';
-import { pageEdit } from './edit';
+import { pageDisplay } from "./display";
+import { pageEdit } from "./edit";
 
 export const pageView = (state, emit, page) => {
   const { edit, p, events } = state;
@@ -18,46 +18,55 @@ export const pageView = (state, emit, page) => {
     return pageEdit(state, emit, page);
   }
 
-  const getParent = pp => p.pages.find(pg => pg.id === pp?.parent);
+  const getParent = (pp) => p.pages.find((pg) => pg.id === pp?.parent);
   const breadcrumb = [];
   let parent = getParent(page);
   while (parent) {
     breadcrumb.unshift(parent);
     parent = getParent(parent);
   }
-  
+
   const created = new Date(cd);
   const crFormat = FW.date(created);
   const modified = new Date(md ?? cd); // If no modified date, use created
   const mdFormat = FW.date(modified);
   return [
     html`<header>
-      ${html.raw(breadcrumb.map(p => `<a href="?page=${p.slug}">${p.name}</a> /`).join(' '))}
+      ${html.raw(
+        breadcrumb
+          .map((p) => `<a href="?page=${p.slug}">${p.name}</a> /`)
+          .join(" ")
+      )}
       <div class="r ns">
-        <h1 class=c>${page.name}</h1>
-        ${
-          page.e
-          ? ''
+        <h1 class="c">${page.name}</h1>
+        ${page.e
+          ? ""
           : html`<div class="c tr" style="width:300px">
-            <div class="tr ib at">
-              <time datetime=${modified.toISOString()}>${mdFormat}</time>
-              ${
-                crFormat !== mdFormat
-                ? html`<span class="db h">
-                  {{translate: pageCreated}} <time datetime=${created.toISOString()}>${crFormat}</time>
-                </span>`
-                : ''
-              }
-            </div>
-            ${
-              !p.published
-              ? html`<button onclick=${() => emit(events.START_EDIT)}>{{translate:pageEditButton}}</button>`
-              : ''
-            }
-          </div>`
-        }
+              <div class="tr ib at">
+                <time datetime=${modified.toISOString()}>${mdFormat}</time>
+                ${crFormat !== mdFormat
+                  ? html`<span class="db h">
+                      {{translate: pageCreated}}
+                      <time datetime=${created.toISOString()}>${crFormat}</time>
+                    </span>`
+                  : ""}
+              </div>
+              <div class="c tr">
+                ${!p.published
+                  ? html`<button onclick=${() => emit(events.START_EDIT)}>
+                      {{translate:pageEditButton}}
+                    </button>`
+                  : ""}
+                <button
+                  onclick=${() => emit(events.SUMMARIZE_WIKI)}
+                  style="margin-left: 8px;"
+                >
+                  {{translate:summarizeWithAI}}
+                </button>
+              </div>
+            </div>`}
       </div>
     </header>`,
     pageDisplay(page),
   ];
-}
+};
