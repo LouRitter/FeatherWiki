@@ -12,6 +12,74 @@ import { gallery } from "./gallery";
 export const settingsView = (state, emit) => {
   const { events, p, c, j } = state;
   const o = p.pages.map((pg) => pg.slug).join("\n");
+  
+  // Debug logging
+  console.log('settingsView called');
+  console.log('window.createTheme exists:', typeof window.createTheme);
+  console.log('window.setActiveTheme exists:', typeof window.setActiveTheme);
+  console.log('window.updateTheme exists:', typeof window.updateTheme);
+  console.log('window.deleteTheme exists:', typeof window.deleteTheme);
+
+  // Theme management functions
+  function handleActiveThemeChange(themeName) {
+    try {
+      window.setActiveTheme(themeName);
+      emit(events.NOTIFY, '{{translate:themeUpdated}}');
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  function showCreateThemeModal() {
+    console.log('showCreateThemeModal called');
+    console.log('window.createTheme exists:', typeof window.createTheme);
+    console.log('emit function exists:', typeof emit);
+    console.log('events object:', events);
+    
+    const themeName = prompt('{{translate:themeName}}');
+    console.log('Theme name entered:', themeName);
+    if (!themeName) return;
+    
+    const cssVariables = prompt('{{translate:cssVariables}}', '--bg-primary: #ffffff;\n--text-main: #000000;\n--accent-color: #007acc;');
+    console.log('CSS variables entered:', cssVariables);
+    if (!cssVariables) return;
+    
+    try {
+      console.log('Calling window.createTheme...');
+      window.createTheme(themeName, cssVariables);
+      console.log('Theme created successfully');
+      emit(events.NOTIFY, '{{translate:themeCreated}}');
+      emit(events.RENDER);
+    } catch (error) {
+      console.error('Error creating theme:', error);
+      alert(error.message);
+    }
+  }
+
+  function selectThemeForEdit(themeName) {
+    if (!themeName) return;
+    
+    const theme = state.p.themes[themeName];
+    if (!theme) return;
+    
+    // Convert theme object back to CSS text
+    let cssText = '';
+    for (const [variable, value] of Object.entries(theme)) {
+      cssText += `${variable}: ${value};\n`;
+    }
+    
+    const newCssVariables = prompt('{{translate:cssVariables}}', cssText);
+    if (!newCssVariables) return;
+    
+    try {
+      window.updateTheme(themeName, newCssVariables);
+      emit(events.NOTIFY, '{{translate:themeUpdated}}');
+      emit(events.RENDER);
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   return [
     html`<header>
       <h1>{{translate:wikiSettings}}</h1>
@@ -51,6 +119,45 @@ export const settingsView = (state, emit) => {
         <span class="h"
           >{{translate:publishHelpText}} <code>?page=s</code></span
         >
+
+        <!-- Theming Section -->
+        <fieldset>
+          <legend>{{translate:theming}}</legend>
+          
+          <label for="activeTheme">{{translate:activeTheme}}</label>
+          <select id="activeTheme" onchange=${(e) => handleActiveThemeChange(e.target.value)}>
+            <option value="default" selected=${p.activeTheme === 'default'}>
+              {{translate:defaultTheme}}
+            </option>
+            ${Object.keys(p.themes || {}).map(themeName => 
+              html`<option value=${themeName} selected=${p.activeTheme === themeName}>
+                ${themeName}
+              </option>`
+            )}
+          </select>
+
+          <div class="tr">
+            <button type="button" onclick=${() => {
+              console.log('Button clicked, calling showCreateThemeModal');
+              console.log('showCreateThemeModal function:', typeof showCreateThemeModal);
+              showCreateThemeModal();
+            }}>
+              {{translate:createNewTheme}}
+            </button>
+          </div>
+
+          ${Object.keys(p.themes || {}).length > 0 ? html`
+            <div class="tr">
+              <label for="themeSelector">{{translate:editTheme}}</label>
+              <select id="themeSelector" onchange=${(e) => selectThemeForEdit(e.target.value)}>
+                <option value="">Select theme to edit</option>
+                ${Object.keys(p.themes || {}).map(themeName => 
+                  html`<option value=${themeName}>${themeName}</option>`
+                )}
+              </select>
+            </div>
+          ` : ''}
+        </fieldset>
 
         <div class="tr">
           <button type="submit">{{translate:update}}</button>

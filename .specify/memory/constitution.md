@@ -1,50 +1,50 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: 1.0.0 → 1.0.0 (initial constitution)
+Modified principles: N/A (new constitution)
+Added sections: Core Principles, Development Workflow & Review Process, Roles & Responsibilities, Governance
+Removed sections: N/A (new constitution)
+Templates requiring updates: ✅ plan-template.md (constitution check section updated), ⚠ pending: spec-template.md, tasks-template.md, agent-file-template.md
+Follow-up TODOs: None
+-->
+
+# FeatherWiki SpecKit Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Parsimony (The Size Mandate)
+All features must be developed with file size as a primary constraint. Code must be minimalist vanilla JS (ES2015+). The core build is dependency-free; optional extensions must load libraries dynamically from a CDN. Existing styles and helpers must be reused before creating new ones.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Self-Containment (The Quine Mandate)
+The application and its data must remain a single, portable HTML file. All feature data must be serializable to JSON and stored within the primary data object (state.p). Features must function without any external setup when the file is moved.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. User Experience & Compatibility
+UI elements must be unobtrusive and blend with the existing aesthetic. All user-facing text strings must be translatable via language-specific extension files. Features must not raise the ES2015 baseline and must degrade gracefully.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Server Integrity (NON-NEGOTIABLE)
+The core server-saving mechanism is inviolable. All contributions must preserve the OPTIONS request for dav header detection, the PUT request structure for saving the complete HTML file, and the documented success/failure response handling.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Licensing & Openness
+All code contributions must be compatible with the AGPL-3.0 or later license. User-generated content is the property of the user and is not subject to the AGPL unless its author specifies otherwise.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Development Workflow & Review Process
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Trivial Fixes (typos, docs, non-functional refactors): Require one (1) Core Contributor review for merge.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Feature Additions / Behavior Changes: Require an RFC (Request for Comments) issue to be opened for a minimum of five (5) days to achieve lazy consensus before a Pull Request is considered. Contested RFCs require a formal Maintainer vote.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Roles & Responsibilities
+
+Maintainers: Own architectural direction, releases, security reviews, and final merge decisions.
+
+Core Contributors: Trusted reviewers with merge rights for low-risk changes.
+
+Contributors: Anyone proposing issues or Pull Requests under the rules herein.
+
+Users: Content authors and deployers whose feedback guides project priorities.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This Constitution supersedes all other practices and internal documentation. Amendments require a documented RFC, Maintainer approval, and a clear migration plan if applicable. All Pull Requests and code reviews must verify compliance with this document. Any added complexity must be explicitly justified against the Principle of Parsimony.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-01-07 | **Last Amended**: 2025-01-07
