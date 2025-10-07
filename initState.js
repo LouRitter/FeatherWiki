@@ -64,6 +64,14 @@ export const initState = (state) => {
   } catch (e) {
     state.p = { name: "{{translate:newWiki}}", desc: "", pages: [], img: {} };
   }
+  
+  // Initialize theme data if not present (backward compatibility)
+  if (!state.p.themes) {
+    state.p.themes = {};
+  }
+  if (!state.p.activeTheme) {
+    state.p.activeTheme = "default";
+  }
   state.pg = FW.getPage();
 
   // determine last-used editor

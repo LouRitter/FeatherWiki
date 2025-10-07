@@ -1,0 +1,24 @@
+# FeatherWiki Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-10-07
+
+## Active Technologies
+- JavaScript (ES2015+) + nanochoo.js (modified Choo framework), nanohtml for UI components (001-featherwiki-theming-engine)
+
+## Project Structure
+```
+src/
+tests/
+```
+
+## Commands
+npm test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLOGIES] npm run lint
+
+## Code Style
+JavaScript (ES2015+): Follow standard conventions
+
+## Recent Changes
+- 001-featherwiki-theming-engine: Added JavaScript (ES2015+) + nanochoo.js (modified Choo framework), nanohtml for UI components
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

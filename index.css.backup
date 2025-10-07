@@ -7,37 +7,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License along with Feather Wiki. If not, see https://www.gnu.org/licenses/.
  */
-
-/* CSS Custom Properties for theming */
-:root {
-  --bg-primary: #fff;
-  --bg-secondary: #eee;
-  --bg-tertiary: #ddd;
-  --text-main: #000;
-  --text-secondary: #fff;
-  --accent-color: #65A;
-  --accent-hover: #87C;
-  --border-color: #000;
-  --border-light: #888;
-  --shadow-color: #555;
-  --outline-color: #000;
-  --font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  --font-size-base: 12pt;
-  --spacing-small: .5rem;
-  --spacing-medium: 1rem;
-  --spacing-large: 1.5rem;
-  --border-radius: 0;
-  --border-width: 1px;
-  --border-width-thick: 2px;
-  --border-width-thickest: 3px;
-}
  html {
-  font-family: var(--font-family, BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif);
+  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 }
 html, button, input, select, option, textarea {
-  font-size: var(--font-size-base, 12pt);
-  background: var(--bg-primary, #fff);
-  color: var(--text-main, #000);
+  font-size: 12pt;
+  background: #fff;
+  color: #000;
 }
 html, body {
   margin: 0;
@@ -45,7 +21,7 @@ html, body {
 }
 
 :focus {
-  outline: var(--border-width-thick, 2px) solid var(--outline-color, #000);
+  outline: 2px solid #000;
 }
 
 * {
@@ -55,17 +31,17 @@ html, body {
 }
 
 * + *, p, li > ul, li > ol, .ed-uc > *:not(:first-child) { /* Consolidating .ed-uc here to reduce repetition */
-  margin: var(--spacing-small, .5rem) 0;
+  margin: .5rem 0;
 }
 
-main > * { padding: var(--spacing-medium, 1rem) var(--spacing-large, 1.5rem) 2rem; }
+main > * { padding: 1rem 1.5rem 2rem; }
 
 #g:not([open]), .sb .n {
   display: none;
 }
 
 input, select, textarea {
-  padding: var(--spacing-small, .5rem);
+  padding: .5rem;
   tab-size: 4;
 }
 
@@ -96,9 +72,9 @@ h6 {
 .np { max-width: 8rem; }
 button, summary:is(.np, .b) {
   text-align: center;
-  color: var(--text-secondary, #fff);
+  color: #fff;
   padding: 5px 12px;
-  background-color: var(--accent-color, #65A);
+  background-color: #65A;
   border: 0;
   border-radius: 1rem;
   z-index: 2;
@@ -106,7 +82,7 @@ button, summary:is(.np, .b) {
 a, button, summary, .noti { cursor: pointer; }
 a {
   text-decoration: none;
-  color: var(--accent-color, #65A);
+  color: #65A;
 }
 :is(a, button):is(:hover, :active, :visited) {
   opacity: .8;
@@ -139,32 +115,32 @@ label { display: block; }
 blockquote {
   margin-left: 2rem;
   padding-left: 1rem;
-  border-left: var(--border-width-thickest, 3px) solid var(--border-light, #888);
+  border-left: 3px solid #888;
 }
 .uc pre {
   font-size: 80%;
   padding: 1em;
   border-radius: 6px;
-  background-color: var(--bg-secondary, #eee);
+  background-color: #eee;
   line-height: 1.5;
   overflow-x: auto;
 }
 
 abbr[title] { cursor: help; }
 
-.sb { background: var(--bg-tertiary, #ddd); }
+.sb { background: #ddd; }
 /* default width for all widths is 100% for small screens—no columns */
 .w1, .w34, .w12, .w14, .r, main { width: 100%; }
 /* tabs */
 .tabs > * {
-  border: var(--border-width-thick, 2px) solid var(--accent-color, #65A);
+  border: 2px solid #65A;
   border-bottom: 0;
   border-radius: .5rem .5rem 0 0;
   margin: 0;
 }
 .a {
-  background: var(--accent-hover, #87C);
-  color: var(--text-secondary, #fff);
+  background: #87C;
+  color: #fff;
 }
 @media(min-width:50rem) {
   /* row */
@@ -244,12 +220,12 @@ abbr[title] { cursor: help; }
 }
 .noti {
   padding: 1em;
-  box-shadow: 3px 3px 5px var(--shadow-color, #555);
+  box-shadow: 3px 3px 5px #555;
 }
 
 /**** ed edior ***/
 #g, input, select, textarea, .ed, .noti {
-  border: var(--border-width, 1px) solid var(--border-color, #000);
+  border: 1px solid #000;
   border-radius: 3px;
 }
 .ed * {
@@ -268,22 +244,22 @@ abbr[title] { cursor: help; }
   max-height: 600px;
 }
 .ed-uc nowiki {
-  background: var(--bg-secondary, #EEE);
+  background: #EEE;
 }
 :is(.ed-uc, textarea, .uc) * { max-width: 100%; }
 
 .ed-bar {
-  border-bottom: var(--border-width, 1px) solid var(--border-color, #000);
+  border-bottom: 1px solid #000;
 }
 
 .ed-btn {
   background: transparent;
-  color: var(--text-main, #000);
+  color: #000;
   vertical-align: middle;
 }
 
 .ed-sel {
-  background: var(--bg-tertiary, #ddd);
+  background: #ddd;
 }
 
 /* Modal styles */
@@ -301,8 +277,8 @@ abbr[title] { cursor: help; }
 }
 
 .modal-content {
-  background: var(--bg-primary, #fff);
-  border: var(--border-width, 1px) solid var(--border-color, #000);
+  background: #fff;
+  border: 1px solid #000;
   border-radius: 8px;
   max-width: 600px;
   width: 90%;
@@ -344,7 +320,7 @@ abbr[title] { cursor: help; }
 
 .modal-close:hover {
   background: #e9ecef;
-  color: var(--text-main, #000);
+  color: #000;
 }
 
 .modal-body {

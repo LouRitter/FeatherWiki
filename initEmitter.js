@@ -9,6 +9,7 @@
  */
 import { handleTab } from "./helpers/handleTab";
 import { summarizeContent } from "./helpers/aiSummarize";
+import { isValidThemeName, validateCssSyntax, parseCssVariables, isThemeLimitReached, canDeleteTheme } from "./helpers/themeValidation";
 
 export const initEmitter = (state, emitter) => {
   const { root, views } = state;
@@ -48,6 +49,119 @@ export const initEmitter = (state, emitter) => {
 
   const keepEditing = () =>
     state.edits && !confirm("{{translate:unsavedWarning}}"); // True if editing & clicks cancel
+
+  // Theme management functions
+  const applyActiveTheme = (state) => {
+    // Remove existing theme style element
+    const existingStyle = document.getElementById('fw-theme');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    // Check if active theme is not default
+    if (state.p.activeTheme && state.p.activeTheme !== 'default' && state.p.themes[state.p.activeTheme]) {
+      const theme = state.p.themes[state.p.activeTheme];
+      
+      // Create new style element with theme variables
+      const styleElement = document.createElement('style');
+      styleElement.id = 'fw-theme';
+      
+      // Generate CSS with :root block containing theme variables
+      let cssContent = ':root {\n';
+      for (const [variable, value] of Object.entries(theme)) {
+        cssContent += `  ${variable}: ${value};\n`;
+      }
+      cssContent += '}';
+      
+      styleElement.textContent = cssContent;
+      document.head.appendChild(styleElement);
+    }
+  };
+
+  // Theme state management functions
+  function createTheme(themeName, cssVariables) {
+    console.log('createTheme called with:', themeName, cssVariables);
+    console.log('isValidThemeName function:', typeof isValidThemeName);
+    console.log('isThemeLimitReached function:', typeof isThemeLimitReached);
+    console.log('validateCssSyntax function:', typeof validateCssSyntax);
+    console.log('parseCssVariables function:', typeof parseCssVariables);
+    console.log('emit function:', typeof emit);
+    console.log('CHECK_CHANGED constant:', CHECK_CHANGED);
+    
+    if (!isValidThemeName(themeName)) {
+      throw new Error('{{translate:themeNameInvalid}}');
+    }
+    
+    if (state.p.themes[themeName]) {
+      throw new Error('{{translate:themeNameExists}}');
+    }
+    
+    if (isThemeLimitReached(state.p.themes)) {
+      throw new Error('{{translate:themeLimitReached}}');
+    }
+    
+    const validation = validateCssSyntax(cssVariables);
+    if (!validation.isValid) {
+      throw new Error('{{translate:invalidCssSyntax}}');
+    }
+    
+    state.p.themes[themeName] = parseCssVariables(cssVariables);
+    emit(CHECK_CHANGED);
+  }
+
+  function updateTheme(themeName, cssVariables) {
+    if (!state.p.themes[themeName]) {
+      throw new Error('{{translate:themeNotFound}}');
+    }
+    
+    const validation = validateCssSyntax(cssVariables);
+    if (!validation.isValid) {
+      throw new Error('{{translate:invalidCssSyntax}}');
+    }
+    
+    state.p.themes[themeName] = parseCssVariables(cssVariables);
+    emit(CHECK_CHANGED);
+    
+    // Reapply theme if it's currently active
+    if (state.p.activeTheme === themeName) {
+      applyActiveTheme(state);
+    }
+  }
+
+  function deleteTheme(themeName) {
+    if (!state.p.themes[themeName]) {
+      throw new Error('{{translate:themeNotFound}}');
+    }
+    
+    if (!canDeleteTheme(themeName, state.p.activeTheme)) {
+      throw new Error('{{translate:cannotDeleteActiveTheme}}');
+    }
+    
+    delete state.p.themes[themeName];
+    emit(CHECK_CHANGED);
+  }
+
+  function setActiveTheme(themeName) {
+    if (themeName !== 'default' && !state.p.themes[themeName]) {
+      throw new Error('{{translate:themeNotFound}}');
+    }
+    
+    state.p.activeTheme = themeName;
+    applyActiveTheme(state);
+    emit(CHECK_CHANGED);
+  }
+
+  // Make theme functions globally available for testing
+  window.applyActiveTheme = applyActiveTheme;
+  window.createTheme = createTheme;
+  window.updateTheme = updateTheme;
+  window.deleteTheme = deleteTheme;
+  window.setActiveTheme = setActiveTheme;
+  window.isValidThemeName = isValidThemeName;
+  window.validateCssSyntax = validateCssSyntax;
+  window.parseCssVariables = parseCssVariables;
+  window.isThemeLimitReached = isThemeLimitReached;
+  window.canDeleteTheme = canDeleteTheme;
   const stopEdit = () => {
     // Shave off more bytes
     state.edit = false;
@@ -65,6 +179,9 @@ export const initEmitter = (state, emitter) => {
     else tab();
 
     emit(DETECT_PUT_SUPPORT);
+    
+    // Apply active theme on load
+    applyActiveTheme(state);
   });
 
   emitter.on(RENDER, tab);

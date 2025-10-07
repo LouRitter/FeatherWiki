@@ -1,8 +1,8 @@
 
-# Implementation Plan: [FEATURE]
+# Implementation Plan: FeatherWiki Theming Engine
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `001-featherwiki-theming-engine` | **Date**: 2025-01-07 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/specs/001-featherwiki-theming-engine/spec.md`
 
 ## Execution Flow (/plan command scope)
 ```
@@ -31,27 +31,27 @@
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
-[Extract from feature spec: primary requirement + technical approach from research]
+Implement a theming engine that allows FeatherWiki users to create, manage, and apply visual themes to personalize their wiki's appearance. The system will use CSS Custom Properties for themeable elements, store theme data in the core state object for portability, and provide a user interface for theme management within the settings page. Updated with clarifications: theme name validation (CSS identifier format), error handling (reject invalid CSS with error message), performance (no strict requirements), deletion constraints (require new theme selection), and theme limits (maximum 10 themes per wiki).
 
 ## Technical Context
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: JavaScript (ES2015+)  
+**Primary Dependencies**: nanochoo.js (modified Choo framework), nanohtml for UI components  
+**Storage**: In-memory state object (state.p) with JSON serialization for portability  
+**Testing**: Manual testing via browser developer tools and file save/load validation  
+**Target Platform**: Modern web browsers supporting ES2015+ and CSS Custom Properties  
+**Project Type**: single (self-contained HTML file application)  
+**Performance Goals**: No strict timing requirements for theme application  
+**Constraints**: Must maintain single-file portability, preserve server-saving mechanism, ES2015+ compatibility, maximum 10 themes per wiki  
+**Scale/Scope**: Single-user wiki instances with multiple custom themes per instance
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**Parsimony Check**: Does this feature maintain minimal file size? Are existing styles/helpers reused?
-**Self-Containment Check**: Will all data be serializable to JSON and stored in state.p?
-**UX Compatibility Check**: Are UI elements unobtrusive? Are text strings translatable?
-**Server Integrity Check**: Does this preserve the OPTIONS/PUT server-saving mechanism?
-**Licensing Check**: Is all code AGPL-3.0 compatible?
+**Parsimony Check**: ✅ YES - Refactors existing CSS to use variables, reuses existing UI patterns and helpers, minimal code addition for theme management
+**Self-Containment Check**: ✅ YES - All theme data stored in state.p object, fully serializable to JSON, maintains single-file portability
+**UX Compatibility Check**: ✅ YES - UI integrates into existing settings page, all text strings will be translatable via locales system
+**Server Integrity Check**: ✅ YES - No changes to server-saving mechanism, theme data included in standard save/load cycle
+**Licensing Check**: ✅ YES - All new code will be AGPL-3.0 compatible, user themes remain user property
 
 ## Project Structure
 
@@ -67,50 +67,20 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+index.css                    # CSS file to be refactored with CSS Custom Properties
+index.js                     # Main application entry point
+initState.js                 # State initialization - add theme data structures
+initEmitter.js               # Event handling - add theme application logic
+views/
+├── settings.js              # Settings page - add theming UI section
+locales/
+├── en-US.json               # Add theming-related translation keys
+helpers/                     # Existing helper functions (reused)
+extensions/                  # Existing extensions (unchanged)
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Single-file FeatherWiki application structure. Theming functionality will be integrated into existing files without creating new modules, maintaining the minimalist approach and single-file portability.
 
 ## Phase 0: Outline & Research
 1. **Extract unknowns from Technical Context** above:
@@ -172,17 +142,24 @@ directories captured above]
 **Task Generation Strategy**:
 - Load `.specify/templates/tasks-template.md` as base
 - Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract → contract test task [P]
-- Each entity → model creation task [P] 
-- Each user story → integration test task
-- Implementation tasks to make tests pass
+- CSS refactoring tasks for index.css variable conversion
+- State management tasks for initState.js theme data structures
+- Theme application tasks for initEmitter.js dynamic styling
+- UI implementation tasks for views/settings.js theming section
+- Validation tasks for theme name format and CSS syntax checking
+- Theme limit enforcement tasks (maximum 10 themes)
+- Active theme deletion constraint tasks
+- Internationalization tasks for locales/en-US.json translation keys
+- Integration tests for theme persistence and application
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation 
-- Dependency order: Models before services before UI
+- Foundation first: CSS refactoring, state management, theme application logic
+- Validation implementation: Theme name and CSS syntax validation
+- UI implementation: Settings page theming section with constraints
+- Integration: End-to-end theme management workflow
 - Mark [P] for parallel execution (independent files)
 
-**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
+**Estimated Output**: 18-22 numbered, ordered tasks in tasks.md
 
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
@@ -206,18 +183,18 @@ directories captured above]
 *This checklist is updated during execution flow*
 
 **Phase Status**:
-- [ ] Phase 0: Research complete (/plan command)
-- [ ] Phase 1: Design complete (/plan command)
-- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
+- [x] Phase 0: Research complete (/plan command)
+- [x] Phase 1: Design complete (/plan command)
+- [x] Phase 2: Task planning complete (/plan command - describe approach only)
 - [ ] Phase 3: Tasks generated (/tasks command)
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
-- [ ] Initial Constitution Check: PASS
-- [ ] Post-Design Constitution Check: PASS
-- [ ] All NEEDS CLARIFICATION resolved
-- [ ] Complexity deviations documented
+- [x] Initial Constitution Check: PASS
+- [x] Post-Design Constitution Check: PASS
+- [x] All NEEDS CLARIFICATION resolved
+- [x] Complexity deviations documented
 
 ---
 *Based on Constitution v1.0.0 - See `/memory/constitution.md`*
