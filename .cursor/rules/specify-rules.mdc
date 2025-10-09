@@ -4,6 +4,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-07
 
 ## Active Technologies
 - JavaScript (ES2015+) + nanochoo.js (modified Choo framework), nanohtml for UI components (001-featherwiki-theming-engine)
+- In-memory state object (state.p) with JSON serialization for portability (002-user-story-as)
 
 ## Project Structure
 ```
@@ -18,6 +19,7 @@ npm test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNO
 JavaScript (ES2015+): Follow standard conventions
 
 ## Recent Changes
+- 002-user-story-as: Added JavaScript (ES2015+) + nanochoo.js (modified Choo framework), nanohtml for UI components
 - 001-featherwiki-theming-engine: Added JavaScript (ES2015+) + nanochoo.js (modified Choo framework), nanohtml for UI components
 
 <!-- MANUAL ADDITIONS START -->

@@ -13,6 +13,38 @@ export const settingsView = (state, emit) => {
   const { events, p, c, j } = state;
   const o = p.pages.map((pg) => pg.slug).join("\n");
   
+  // Theme variable mapping configuration with logical grouping
+  const themeVariableMap = [
+    // Colors Section
+    { type: 'section', key: 'themeSectionColors' },
+    { cssVar: '--bg-primary', labelKey: 'themePrimaryBg', descKey: 'themePrimaryBgDesc' },
+    { cssVar: '--text-main', labelKey: 'themeTextMain', descKey: 'themeTextMainDesc' },
+    { cssVar: '--accent-color', labelKey: 'themeAccent', descKey: 'themeAccentDesc' },
+    { cssVar: '--accent-hover', labelKey: 'themeAccentHover', descKey: 'themeAccentHoverDesc' },
+    
+    // Layout Section
+    { type: 'section', key: 'themeSectionLayout' },
+    { cssVar: '--sidebar-bg', labelKey: 'themeSidebarBg', descKey: 'themeSidebarBgDesc' },
+    { cssVar: '--sidebar-text-color', labelKey: 'themeSidebarText', descKey: 'themeSidebarTextDesc' },
+    { cssVar: '--bg-secondary', labelKey: 'themeSecondaryBg', descKey: 'themeSecondaryBgDesc' },
+    { cssVar: '--bg-tertiary', labelKey: 'themeTertiaryBg', descKey: 'themeTertiaryBgDesc' },
+    
+    // Interactive Elements Section
+    { type: 'section', key: 'themeSectionInteractive' },
+    { cssVar: '--button-bg-active', labelKey: 'themeActiveElementBg', descKey: 'themeActiveElementBgDesc' },
+    { cssVar: '--text-active', labelKey: 'themeActiveText', descKey: 'themeActiveTextDesc' },
+    { cssVar: '--border-color', labelKey: 'themeBorderColor', descKey: 'themeBorderColorDesc' },
+    
+    // Content Section
+    { type: 'section', key: 'themeSectionContent' },
+    { cssVar: '--code-block-bg', labelKey: 'themeCodeBg', descKey: 'themeCodeBgDesc' },
+    { cssVar: '--change-delete-bg', labelKey: 'themeChangeDeleteBg', descKey: 'themeChangeDeleteBgDesc' },
+    
+    // Effects Section
+    { type: 'section', key: 'themeSectionEffects' },
+    { cssVar: '--shadow-color', labelKey: 'themeShadowColor', descKey: 'themeShadowColorDesc' }
+  ];
+  
   // Debug logging
   console.log('settingsView called');
   console.log('window.createTheme exists:', typeof window.createTheme);
@@ -24,61 +56,152 @@ export const settingsView = (state, emit) => {
   function handleActiveThemeChange(themeName) {
     try {
       window.setActiveTheme(themeName);
-      emit(events.NOTIFY, '{{translate:themeUpdated}}');
+      emit(events.NOTIFY, j.themeUpdated || 'Theme updated successfully');
     } catch (error) {
       alert(error.message);
     }
   }
 
-  function showCreateThemeModal() {
-    console.log('showCreateThemeModal called');
-    console.log('window.createTheme exists:', typeof window.createTheme);
-    console.log('emit function exists:', typeof emit);
-    console.log('events object:', events);
+  // Legacy function removed - replaced by showCreateThemeWithColorPickers
+
+  // Legacy function removed - now using nanohtml template approach
+  
+  // Get default color for CSS variable
+  function getDefaultColor(cssVar) {
+    const defaults = {
+      '--bg-primary': '#ffffff',
+      '--text-main': '#000000',
+      '--accent-color': '#007acc',
+      '--accent-hover': '#87C',
+      '--sidebar-bg': '#f0f0f0',
+      '--sidebar-text-color': '#000000',
+      '--button-bg-active': '#87C',
+      '--text-active': '#ffffff',
+      '--code-block-bg': '#f8f8f8',
+      '--bg-secondary': '#eee',
+      '--bg-tertiary': '#ddd',
+      '--border-color': '#000',
+      '--shadow-color': '#555',
+      '--change-delete-bg': '#ff0000'
+    };
+    return defaults[cssVar] || '#000000';
+  }
+  
+  // Handle color change for live preview
+  function handleColorChange(cssVar, value) {
+    const editingTheme = state.p.themeEditing?.editingTheme;
+    if (!editingTheme || !state.p.themes[editingTheme]) return;
     
-    const themeName = prompt('{{translate:themeName}}');
-    console.log('Theme name entered:', themeName);
+    // Update theme data
+    state.p.themes[editingTheme][cssVar] = value;
+    
+    // Apply live preview if editing active theme
+    if (editingTheme === state.p.activeTheme) {
+      window.applyActiveTheme(state);
+    }
+  }
+  
+  // Handle color change completion for state tracking
+  function handleColorChangeComplete(cssVar, value) {
+    // Emit CHECK_CHANGED event to mark wiki as needing save
+    emit(events.CHECK_CHANGED);
+  }
+  
+  // Handle theme selection for editing
+  function handleThemeSelection(themeName) {
+    if (!themeName) {
+      // Clear theme editing state
+      if (state.p.themeEditing) {
+        state.p.themeEditing.editingTheme = null;
+      }
+      emit(events.RENDER);
+      return;
+    }
+    
+    if (themeName === 'create-new') {
+      showCreateThemeWithColorPickers();
+      return;
+    }
+    
+    // Initialize theme editing state
+    if (!state.p.themeEditing) {
+      state.p.themeEditing = {};
+    }
+    state.p.themeEditing.editingTheme = themeName;
+    
+    // Trigger re-render to show the theme editor
+    emit(events.RENDER);
+  }
+  
+  // Show create theme modal with color pickers
+  function showCreateThemeWithColorPickers() {
+    const themeName = prompt(j.themeName || 'Theme Name');
     if (!themeName) return;
     
-    const cssVariables = prompt('{{translate:cssVariables}}', '--bg-primary: #ffffff;\n--text-main: #000000;\n--accent-color: #007acc;');
-    console.log('CSS variables entered:', cssVariables);
-    if (!cssVariables) return;
+    // Show starting point selection
+    const startingPoint = prompt(
+      `${j.themeStartingPoint || 'Starting Point'}:\n1. ${j.startingPointDefault || 'Default Colors'}\n2. ${j.startingPointCurrent || 'Current Theme'}\n3. ${j.startingPointNeutral || 'Neutral Colors'}`,
+      '1'
+    );
     
+    let baseTheme = {};
+    switch (startingPoint) {
+      case '2': // Current theme
+        baseTheme = state.p.themes[state.p.activeTheme] || {};
+        break;
+      case '3': // Neutral colors
+        baseTheme = {
+          '--bg-primary': '#f5f5f5',
+          '--text-main': '#333333',
+          '--accent-color': '#666666',
+          '--accent-hover': '#888888',
+          '--sidebar-bg': '#e0e0e0',
+          '--button-bg-active': '#888888',
+          '--text-active': '#ffffff'
+        };
+        break;
+      default: // Default colors
+        baseTheme = {
+          '--bg-primary': '#ffffff',
+          '--text-main': '#000000',
+          '--accent-color': '#007acc',
+          '--accent-hover': '#87C',
+          '--sidebar-bg': '#f0f0f0',
+          '--button-bg-active': '#87C',
+          '--text-active': '#ffffff'
+        };
+    }
+    
+    // Convert theme object to CSS string format
+    let cssString = '';
+    for (const [variable, value] of Object.entries(baseTheme)) {
+      cssString += `${variable}: ${value};\n`;
+    }
+    
+    // Create theme with base colors
     try {
-      console.log('Calling window.createTheme...');
-      window.createTheme(themeName, cssVariables);
-      console.log('Theme created successfully');
-      emit(events.NOTIFY, '{{translate:themeCreated}}');
+      window.createTheme(themeName, cssString);
+      emit(events.NOTIFY, j.themeCreated || 'Theme created successfully');
+      
+      // Set as editing theme and show color pickers
+      state.p.themeEditing = { editingTheme: themeName };
+      
+      // Update dropdown to show new theme and render color pickers
       emit(events.RENDER);
     } catch (error) {
-      console.error('Error creating theme:', error);
       alert(error.message);
     }
   }
 
-  function selectThemeForEdit(themeName) {
-    if (!themeName) return;
-    
-    const theme = state.p.themes[themeName];
-    if (!theme) return;
-    
-    // Convert theme object back to CSS text
-    let cssText = '';
-    for (const [variable, value] of Object.entries(theme)) {
-      cssText += `${variable}: ${value};\n`;
-    }
-    
-    const newCssVariables = prompt('{{translate:cssVariables}}', cssText);
-    if (!newCssVariables) return;
-    
-    try {
-      window.updateTheme(themeName, newCssVariables);
-      emit(events.NOTIFY, '{{translate:themeUpdated}}');
-      emit(events.RENDER);
-    } catch (error) {
-      alert(error.message);
-    }
-  }
+  // Legacy function removed - now using nanohtml template approach
+
+  // Make functions globally available for testing
+  window.handleColorChange = handleColorChange;
+  window.handleColorChangeComplete = handleColorChangeComplete;
+  window.handleThemeSelection = handleThemeSelection;
+  window.showCreateThemeWithColorPickers = showCreateThemeWithColorPickers;
+
+  // Legacy function removed - replaced by handleThemeSelection with color pickers
 
   return [
     html`<header>
@@ -120,43 +243,80 @@ export const settingsView = (state, emit) => {
           >{{translate:publishHelpText}} <code>?page=s</code></span
         >
 
-        <!-- Theming Section -->
+        <!-- Enhanced Theming Section with Color Pickers -->
         <fieldset>
           <legend>{{translate:theming}}</legend>
           
-          <label for="activeTheme">{{translate:activeTheme}}</label>
-          <select id="activeTheme" onchange=${(e) => handleActiveThemeChange(e.target.value)}>
-            <option value="default" selected=${p.activeTheme === 'default'}>
-              {{translate:defaultTheme}}
-            </option>
-            ${Object.keys(p.themes || {}).map(themeName => 
-              html`<option value=${themeName} selected=${p.activeTheme === themeName}>
-                ${themeName}
-              </option>`
-            )}
-          </select>
-
           <div class="tr">
-            <button type="button" onclick=${() => {
-              console.log('Button clicked, calling showCreateThemeModal');
-              console.log('showCreateThemeModal function:', typeof showCreateThemeModal);
-              showCreateThemeModal();
-            }}>
-              {{translate:createNewTheme}}
-            </button>
+            <label for="activeTheme">{{translate:activeTheme}}</label>
+            <select id="activeTheme" onchange=${(e) => handleActiveThemeChange(e.target.value)}>
+              <option value="default" selected=${p.activeTheme === 'default'}>
+                ${j.defaultTheme || 'Default'}
+              </option>
+              ${Object.keys(p.themes || {}).map(themeName => {
+                // Get translated theme name or fallback to theme name
+                const translatedName = j[`theme${themeName.charAt(0).toUpperCase() + themeName.slice(1).replace(/_/g, '')}`] || themeName;
+                return html`<option value=${themeName} selected=${p.activeTheme === themeName}>
+                  ${translatedName}
+                </option>`;
+              })}
+            </select>
           </div>
 
-          ${Object.keys(p.themes || {}).length > 0 ? html`
-            <div class="tr">
-              <label for="themeSelector">{{translate:editTheme}}</label>
-              <select id="themeSelector" onchange=${(e) => selectThemeForEdit(e.target.value)}>
-                <option value="">Select theme to edit</option>
-                ${Object.keys(p.themes || {}).map(themeName => 
-                  html`<option value=${themeName}>${themeName}</option>`
-                )}
-              </select>
-            </div>
-          ` : ''}
+          <div class="tr">
+            <label for="themeToEdit">{{translate:selectThemeToEdit}}</label>
+            <select id="themeToEdit" name="themeToEdit" onchange=${(e) => handleThemeSelection(e.target.value)}>
+              <option value="">${j.selectThemeToEdit || 'Select theme to edit'}</option>
+              <option value="create-new">${j.createNewTheme || 'Create New Theme'}</option>
+              ${Object.keys(p.themes || {}).map(themeName => {
+                // Get translated theme name or fallback to theme name
+                const translatedName = j[`theme${themeName.charAt(0).toUpperCase() + themeName.slice(1).replace(/_/g, '')}`] || themeName;
+                return html`<option value=${themeName}>${translatedName}</option>`;
+              })}
+            </select>
+          </div>
+
+          <div id="themeEditor" class="theme-editor-container">
+            ${state.p.themeEditing?.editingTheme && state.p.themes[state.p.themeEditing.editingTheme] ? 
+              html`<div class="theme-editor">
+                ${themeVariableMap.map((item) => {
+                  if (item.type === 'section') {
+                    // Render section header
+                    const sectionLabel = j[item.key] || item.key;
+                    return html`<div class="theme-section-header"><h4>${sectionLabel}</h4></div>`;
+                  } else {
+                    // Render color picker
+                    const currentValue = state.p.themes[state.p.themeEditing.editingTheme][item.cssVar] || getDefaultColor(item.cssVar);
+                    const translatedLabel = j[item.labelKey] || item.labelKey;
+                    return html`
+                      <div class="color-picker-group">
+                        <label for="color-${item.cssVar}">
+                          ${translatedLabel}
+                          ${item.descKey ? html`<span class="theme-help-text">${j[item.descKey] || ''}</span>` : ''}
+                        </label>
+                        <input 
+                          type="color" 
+                          class="color-picker-swatch"
+                          id="color-${item.cssVar}" 
+                          data-css-variable="${item.cssVar}"
+                          value="${currentValue}"
+                          oninput=${(e) => {
+                            const newColor = e.target.value;
+                            handleColorChange(item.cssVar, newColor);
+                          }}
+                          onchange=${(e) => {
+                            const newColor = e.target.value;
+                            handleColorChangeComplete(item.cssVar, newColor);
+                          }}
+                        />
+                      </div>
+                    `;
+                  }
+                })}
+              </div>` : 
+              html`<!-- Color picker interface will be rendered here -->`
+            }
+          </div>
         </fieldset>
 
         <div class="tr">
@@ -245,4 +405,6 @@ export const settingsView = (state, emit) => {
       delete state.j;
     }
   }
+
+  // Theme editor now handled by nanohtml template
 };

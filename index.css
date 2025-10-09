@@ -21,6 +21,33 @@
   --border-light: #888;
   --shadow-color: #555;
   --outline-color: #000;
+  
+  /* Enhanced theming variables for comprehensive UI coverage */
+  --sidebar-bg: #f0f0f0;
+  --sidebar-text-color: #000;
+  --button-bg-active: #87C;
+  --text-active: #fff;
+  --accent-danger-bg: #ff4444;
+  --code-block-bg: #f8f8f8;
+  --code-block-text: #333;
+  --link-hover-color: #87C;
+  --input-bg: #fff;
+  --input-border: #ccc;
+  --input-focus-border: #65A;
+  --table-header-bg: #f5f5f5;
+  --table-border: #ddd;
+  --notification-bg: #e7f3ff;
+  --notification-border: #b3d9ff;
+  --warning-bg: #fff3cd;
+  --warning-border: #ffeaa7;
+  --error-bg: #f8d7da;
+  --error-border: #f5c6cb;
+  --change-delete-bg: #ff0000;
+  
+  /* Theme editor styling */
+  --theme-section-bg: #f8f9fa;
+  --theme-section-border: #e9ecef;
+  
   --font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   --font-size-base: 12pt;
   --spacing-small: .5rem;
@@ -152,7 +179,10 @@ blockquote {
 
 abbr[title] { cursor: help; }
 
-.sb { background: var(--bg-tertiary, #ddd); }
+.sb { 
+  background: var(--sidebar-bg, #f0f0f0);
+  color: var(--sidebar-text-color, #000);
+}
 /* default width for all widths is 100% for small screens—no columns */
 .w1, .w34, .w12, .w14, .r, main { width: 100%; }
 /* tabs */
@@ -218,7 +248,7 @@ abbr[title] { cursor: help; }
 .tr:not(.ml) { text-align: right; }
 .fr:not(.ml) { float: right; }
 .chg, .del {
-  background: red;
+  background: var(--change-delete-bg, #ff0000);
 }
 .del {
   opacity: .8;
@@ -378,4 +408,91 @@ abbr[title] { cursor: help; }
 
 .modal-footer button:hover {
   opacity: 0.8;
+}
+
+/* Theme Editor Styling */
+.theme-section-header {
+  margin: 2rem 0 1rem 0;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa !important;
+  border: 2px solid #dee2e6 !important;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.theme-section-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #000000 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.theme-section-header:first-child {
+  margin-top: 0;
+}
+
+.color-picker-group {
+  margin: 0.75rem 0;
+  padding: 0.5rem;
+  background: var(--theme-section-bg, #f8f9fa);
+  border-radius: 4px;
+  border: 1px solid var(--theme-section-border, #e9ecef);
+}
+
+.color-picker-group label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: var(--text-main, #000);
+}
+
+.color-picker-group input[type="color"] {
+  width: 100%;
+  height: 50px;
+  border: 2px solid #ccc !important;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-picker-group input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker-group input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+/* Theme Editor Fixed Colors - ensures editor remains visible regardless of active theme */
+.theme-editor-container,
+.theme-editor,
+.color-picker-group {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #e9ecef !important;
+}
+
+.theme-section-header {
+  background: #f8f9fa !important;
+  border: 2px solid #dee2e6 !important;
+}
+
+.theme-section-header h4 {
+  color: #000000 !important;
+}
+
+.color-picker-group label {
+  color: #000000 !important;
+}
+
+.theme-help-text {
+  display: block;
+  font-size: 0.85em;
+  font-weight: normal;
+  color: #666 !important;
+  margin-top: 0.15rem;
+  font-style: italic;
 }
