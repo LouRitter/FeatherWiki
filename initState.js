@@ -72,6 +72,70 @@ export const initState = (state) => {
   if (!state.p.activeTheme) {
     state.p.activeTheme = "default";
   }
+  
+  // Add pre-existing themes if they don't exist (for new wikis)
+  if (Object.keys(state.p.themes).length === 0) {
+    // Dark Theme (VS Code Dark+ inspired)
+    state.p.themes.dark = {
+      '--bg-primary': '#1e1e1e',
+      '--text-main': '#d4d4d4',
+      '--accent-color': '#569cd6',
+      '--accent-hover': '#4ec9b0',
+      '--sidebar-bg': '#252526',
+      '--sidebar-text-color': '#cccccc',
+      '--button-bg-active': '#094771',
+      '--text-active': '#ffffff',
+      '--code-block-bg': '#2d2d30',
+      '--bg-secondary': '#2d2d30',
+      '--bg-tertiary': '#3e3e42',
+      '--border-color': '#3e3e42',
+      '--shadow-color': '#000000',
+      '--change-delete-bg': '#f44747'
+    };
+    
+    // Light Theme (VS Code Light+ inspired)
+    state.p.themes.light = {
+      '--bg-primary': '#ffffff',
+      '--text-main': '#333333',
+      '--accent-color': '#007acc',
+      '--accent-hover': '#005a9e',
+      '--sidebar-bg': '#f3f3f3',
+      '--sidebar-text-color': '#333333',
+      '--button-bg-active': '#007acc',
+      '--text-active': '#ffffff',
+      '--code-block-bg': '#f8f8f8',
+      '--bg-secondary': '#f0f0f0',
+      '--bg-tertiary': '#e1e1e1',
+      '--border-color': '#d4d4d4',
+      '--shadow-color': '#cccccc',
+      '--change-delete-bg': '#f14c4c'
+    };
+    
+    // Solarized Dark Theme
+    state.p.themes.solarized_dark = {
+      '--bg-primary': '#002b36',
+      '--text-main': '#839496',
+      '--accent-color': '#268bd2',
+      '--accent-hover': '#2aa198',
+      '--sidebar-bg': '#073642',
+      '--sidebar-text-color': '#93a1a1',
+      '--button-bg-active': '#268bd2',
+      '--text-active': '#fdf6e3',
+      '--code-block-bg': '#073642',
+      '--bg-secondary': '#073642',
+      '--bg-tertiary': '#586e75',
+      '--border-color': '#586e75',
+      '--shadow-color': '#002b36',
+      '--change-delete-bg': '#dc322f'
+    };
+  }
+  if (!state.p.themeEditing) {
+    state.p.themeEditing = {
+      editingTheme: null,
+      previewMode: false,
+      unsavedChanges: false
+    };
+  }
   state.pg = FW.getPage();
 
   // determine last-used editor
